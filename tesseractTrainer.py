@@ -199,7 +199,7 @@ def countBlackPixels(pixels, x):
 #enddef
 
 def isBlack(pixel):
-    return pixel[0][0] + pixel[1][0] + pixel[2][0] < 128 * 3
+    return pixel[0] + pixel[1] + pixel[2] < 128 * 3
 #enddef
 
 class MainWindow:
