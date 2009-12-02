@@ -1,3 +1,10 @@
 *.tr
 *.log
 junk.txt
+freq-dawg
+inttemp
+lang
+normproto
+pffmtable
+unicharset
+word-dawg

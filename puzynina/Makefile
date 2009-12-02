@@ -27,18 +27,19 @@ $(LANGUAGE_DIR):
 	mkdir -p $(LANGUAGE_DIR)
 
 $(LANGUAGE_FILES) : $(LANGUAGE_DIR)/$(LANGUAGE_NAME).% : %
-	mv $< $@
+	cp $< $@
 
 freq-dawg: frequent_words_list
-	wordlist2dawg $<
+	wordlist2dawg $< $@
 
 word-dawg: words_list
-	wordlist2dawg $<
+	wordlist2dawg $< $@
 
 inttemp: pffmtable
        
 pffmtable: $(TR_FILES)
 	mftraining $^
+	rm Microfeat
 
 normproto: $(TR_FILES)
 	cntraining $^
@@ -48,4 +49,10 @@ unicharset: $(BOX_FILES)
 
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train
+
+.PHONY: clean
+
+clean:
+	rm -rf $(LANGUAGE_DIR) $(TR_FILES) Microfeat tesseract.log
+
 
