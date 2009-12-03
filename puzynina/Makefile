@@ -5,9 +5,6 @@ IMAGE_FILES = 25-1.tif\
 	      25-2.tif\
 	      154.tif
 
-BOX_FILES = $(patsubst %.tif, %.box, $(IMAGE_FILES))
-TR_FILES = $(patsubst %.tif, %.tr, $(IMAGE_FILES))
-
 FILES = freq-dawg\
   word-dawg\
   user-words\
@@ -37,22 +34,37 @@ word-dawg: words_list
 
 inttemp: pffmtable
        
-pffmtable: $(TR_FILES)
+pffmtable: $(patsubst %.tif, %.tr, $(IMAGE_FILES))
 	mftraining $^
 	rm Microfeat
 
-normproto: $(TR_FILES)
+normproto: $(patsubst %.tif, %.tr, $(IMAGE_FILES))
 	cntraining $^
 
-unicharset: $(BOX_FILES)
+unicharset: $(patsubst %.tif, %.box, $(IMAGE_FILES))
 	unicharset_extractor $^
 
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train
 
+%.txt : %.tif
+	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
+
+%.box : %.txt
+	cp $< $@
+
 .PHONY: clean
 
 clean:
-	rm -rf $(LANGUAGE_DIR) $(TR_FILES) Microfeat tesseract.log
+	rm -rf $(LANGUAGE_DIR) $(patsubst %.tif, %.tr, $(IMAGE_FILES)) Microfeat tesseract.log junk.txt
+
+.PHONY: test
+
+test: $(patsubst %.tif, %.txt, $(IMAGE_FILES))
+
+.PHONY: copy
+
+copy: 
+	cp $(LANGUAGE_FILES) ~/local/share/tessdata/
 
 
