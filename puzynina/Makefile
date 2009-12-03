@@ -1,9 +1,9 @@
 LANGUAGE_NAME = lang
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
-IMAGE_FILES = 25-1.tif#\
-	      25-1.tif #\
+IMAGE_FILES = 25-1.tif \
 	      25-2.tif #\
+	      154.tif #\
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 TXT_FILES = $(patsubst %.tif,%.txt,$(IMAGE_FILES))
@@ -53,9 +53,11 @@ unicharset: $(BOX_FILES)
 
 %.txt : %.tif
 	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
+	@echo roznice
+	@diff -u $(patsubst %.txt,%.box,$@) $@ | wc -l
 
-%.box : %.txt
-	cp $< $@
+#%.box : %.txt
+#	cp $< $@
 
 .PHONY: clean
 
