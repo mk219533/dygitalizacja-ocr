@@ -49,7 +49,7 @@ unicharset: $(BOX_FILES)
 	unicharset_extractor $^
 
 %.tr : %.tif %.box
-	tesseract $< junk nobatch box.train
+	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
 
 %.txt : %.tif
 	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
@@ -62,7 +62,7 @@ unicharset: $(BOX_FILES)
 .PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
