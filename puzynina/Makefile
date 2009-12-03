@@ -1,9 +1,14 @@
 LANGUAGE_NAME = lang
-LANGUAGE_DIR = lang
+LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
-IMAGE_FILES = 25-1.tif\
-	      25-2.tif\
-	      154.tif
+IMAGE_FILES = 25-1.tif#\
+	      25-1.tif #\
+	      25-2.tif #\
+
+TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
+TXT_FILES = $(patsubst %.tif,%.txt,$(IMAGE_FILES))
+BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
+
 
 FILES = freq-dawg\
   word-dawg\
@@ -16,7 +21,7 @@ FILES = freq-dawg\
 
 .PHONY: all
 
-LANGUAGE_FILES = $(patsubst %, $(LANGUAGE_DIR)/$(LANGUAGE_NAME).%, $(FILES))
+LANGUAGE_FILES = $(patsubst %,$(LANGUAGE_DIR)/$(LANGUAGE_NAME).%,$(FILES))
 
 all: $(LANGUAGE_DIR) $(LANGUAGE_FILES)
 
@@ -34,14 +39,13 @@ word-dawg: words_list
 
 inttemp: pffmtable
        
-pffmtable: $(patsubst %.tif, %.tr, $(IMAGE_FILES))
+pffmtable: $(TR_FILES)
 	mftraining $^
-	rm Microfeat
 
-normproto: $(patsubst %.tif, %.tr, $(IMAGE_FILES))
+normproto: $(TR_FILES) 
 	cntraining $^
 
-unicharset: $(patsubst %.tif, %.box, $(IMAGE_FILES))
+unicharset: $(BOX_FILES) 	
 	unicharset_extractor $^
 
 %.tr : %.tif %.box
@@ -56,15 +60,9 @@ unicharset: $(patsubst %.tif, %.box, $(IMAGE_FILES))
 .PHONY: clean
 
 clean:
-	rm -rf $(LANGUAGE_DIR) $(patsubst %.tif, %.tr, $(IMAGE_FILES)) Microfeat tesseract.log junk.txt
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
-test: $(patsubst %.tif, %.txt, $(IMAGE_FILES))
-
-.PHONY: copy
-
-copy: 
-	cp $(LANGUAGE_FILES) ~/local/share/tessdata/
-
+test: $(LANGUAGE_FILES) $(TXT_FILES)
 
