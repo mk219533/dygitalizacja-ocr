@@ -2,7 +2,7 @@ LANGUAGE_NAME = slownik29
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
 IMAGE_FILES = 7.tif \
-	      8.tif# \
+	      8.tif \
 	      9.tif \
 	      10.tif
 
