@@ -10,6 +10,7 @@ TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 TXT_FILES = $(patsubst %.tif,%.txt,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 
+TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
 FILES = freq-dawg\
   word-dawg\
@@ -54,8 +55,6 @@ unicharset: $(BOX_FILES)
 
 %.txt : %.tif
 	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
-	@echo roznice
-	@diff -u $(patsubst %.txt,%.box,$@) $@ | wc -l
 
 #%.box : %.txt
 #	cp $< $@
@@ -63,9 +62,24 @@ unicharset: $(BOX_FILES)
 .PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
-test: $(LANGUAGE_FILES) $(TXT_FILES)
+test: $(LANGUAGE_FILES) $(TXT_FILES) $(TESTS)
 
+.PHONY: $(TESTS)
+
+$(TESTS) : test_% : %.box.plain %.txt.plain
+	@echo TEST $@
+	@echo Liczba bledow:
+	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
+	@wc -l $@.error >/dev/null
+	@echo Błędy:
+	@cat $@.error
+	@rm -f $@.error
+	@echo
+
+%.plain : %
+	./make_plain.pl < $< > $@
+	
