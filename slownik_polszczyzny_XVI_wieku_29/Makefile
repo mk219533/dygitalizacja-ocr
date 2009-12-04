@@ -7,7 +7,6 @@ IMAGE_FILES = 7.tif \
 	      10.tif
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
-TXT_FILES = $(patsubst %.tif,%.txt,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
@@ -53,12 +52,6 @@ unicharset: $(BOX_FILES)
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
 
-%.txt : %.tif
-	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
-
-#%.box : %.txt
-#	cp $< $@
-
 .PHONY: clean
 
 clean:
@@ -66,15 +59,15 @@ clean:
 
 .PHONY: test
 
-test: $(LANGUAGE_FILES) $(TXT_FILES) $(TESTS)
+test:  $(TESTS)
 
 .PHONY: $(TESTS)
 
 $(TESTS) : test_% : %.box.plain %.txt.plain
 	@echo TEST $@
-	@echo Liczba bledow:
+	@echo -n "Liczba bledow: "
 	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
-	@wc -l $@.error >/dev/null
+	@wc -l $@.error | cut -f1 -d" "
 	@echo Błędy:
 	@cat $@.error
 	@rm -f $@.error
@@ -82,4 +75,8 @@ $(TESTS) : test_% : %.box.plain %.txt.plain
 
 %.plain : %
 	./make_plain.pl < $< > $@
-	
+
+%.txt : %.tif $(LANGUAGE_FILES)
+	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
+
+

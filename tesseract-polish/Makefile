@@ -1,4 +1,4 @@
-LANGUAGE_NAME = pol2
+LANGUAGE_NAME = pol
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
 IMAGE_FILES = sample_pl-part0-courier.tif\
@@ -15,14 +15,10 @@ IMAGE_FILES = sample_pl-part0-courier.tif\
 	      sample_pl-part3-times-scanner_Brother_DCP-135C_300dpi.tif
 
 
-#25-1.tif \
-	      25-2.tif #\
-	      154.tif #\
-
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
-TXT_FILES = $(patsubst %.tif,%.txt,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 
+TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
 FILES = freq-dawg\
   word-dawg\
@@ -65,20 +61,31 @@ unicharset: $(BOX_FILES)
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
 
-%.txt : %.tif
-	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
-	@echo roznice
-	@diff -u $(patsubst %.txt,%.box,$@) $@ | wc -l
-
-#%.box : %.txt
-#	cp $< $@
-
 .PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
-test: $(LANGUAGE_FILES) $(TXT_FILES)
+test:  $(TESTS)
+
+.PHONY: $(TESTS)
+
+$(TESTS) : test_% : %.box.plain %.txt.plain
+	@echo TEST $@
+	@echo -n "Liczba bledow: "
+	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
+	@wc -l $@.error | cut -f1 -d" "
+#	@echo Błędy:
+#	@cat $@.error
+	@rm -f $@.error
+	@echo
+
+%.plain : %
+	./../utils/make_plain.pl < $< > $@
+
+%.txt : %.tif $(LANGUAGE_FILES)
+	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
+
 
