@@ -1,7 +1,8 @@
 LANGUAGE_NAME = puzynina
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
-IMAGE_FILES = 154.tif\
+IMAGE_FILES = 51.tif\
+	      154.tif\
 	      155.tif\
 	      161.tif#\
 	      25-1.tif\
