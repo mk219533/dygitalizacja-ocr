@@ -1,9 +1,10 @@
 LANGUAGE_NAME = puzynina
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
-IMAGE_FILES = 25-1.tif \
-	      25-2.tif \
-	      154.tif
+IMAGE_FILES = 154.tif\
+	      155.tif#\
+	      25-1.tif#\
+	      25-2.tif#\
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
@@ -67,9 +68,9 @@ $(TESTS) : test_% : %.box.plain %.txt.plain
 	@echo -n "Liczba bledow: "
 	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
 	@wc -l $@.error | cut -f1 -d" "
-	@echo Błędy:
-	@cat $@.error
-	@rm -f $@.error
+#	@echo Błędy:
+#	@cat $@.error
+#	@rm -f $@.error
 	@echo
 
 %.plain : %
