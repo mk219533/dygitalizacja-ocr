@@ -1,10 +1,10 @@
 LANGUAGE_NAME = puzynina
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
-IMAGE_FILES = 51.tif\
-	      154.tif\
+IMAGE_FILES = 154.tif\
 	      155.tif\
-	      161.tif#\
+	      161.tif\
+	      51.tif#\
 	      25-1.tif\
 	      25-2.tif#\
 
@@ -70,7 +70,8 @@ $(TESTS) : test_% : %.error
 	@echo
 
 %.error : %.box.plain %.txt.plain
-	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
+	@diff -y -W 30 $^ > $@ | true
+#	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
 
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
