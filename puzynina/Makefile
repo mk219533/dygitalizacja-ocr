@@ -2,8 +2,9 @@ LANGUAGE_NAME = puzynina
 LANGUAGE_DIR = /home/marcel/local/share/tessdata
 
 IMAGE_FILES = 154.tif\
-	      155.tif#\
-	      25-1.tif#\
+	      155.tif\
+	      161.tif#\
+	      25-1.tif\
 	      25-2.tif#\
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
@@ -52,26 +53,23 @@ unicharset: $(BOX_FILES)
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
 
-.PHONY: clean
+#.PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.error *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
-.PHONY: test
+#.PHONY: test
 
 test:  $(TESTS)
 
-.PHONY: $(TESTS)
-
-$(TESTS) : test_% : %.box.plain %.txt.plain
+$(TESTS) : test_% : %.error 
 	@echo TEST $@
 	@echo -n "Liczba bledow: "
-	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
-	@wc -l $@.error | cut -f1 -d" "
-#	@echo Błędy:
-#	@cat $@.error
-#	@rm -f $@.error
+	@wc -l $< | cut -f1 -d" "
 	@echo
+
+%.error : %.box.plain %.txt.plain
+	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
 
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
