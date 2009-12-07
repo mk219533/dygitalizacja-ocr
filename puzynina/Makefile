@@ -54,12 +54,12 @@ unicharset: $(BOX_FILES)
 %.tr : %.tif %.box
 	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
 
-#.PHONY: clean
+.PHONY: clean
 
 clean:
 	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.error *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
-#.PHONY: test
+.PHONY: test
 
 test:  $(TESTS)
 
@@ -70,8 +70,8 @@ $(TESTS) : test_% : %.error
 	@echo
 
 %.error : %.box.plain %.txt.plain
-	@diff -y -W 30 $^ > $@ | true
-#	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
+	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
+#	@diff -y -W 30 $^ > $@ | true
 
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
