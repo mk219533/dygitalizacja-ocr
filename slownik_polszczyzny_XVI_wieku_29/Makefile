@@ -74,7 +74,7 @@ $(TESTS) : test_% : %.box.plain %.txt.plain
 	@echo
 
 %.plain : %
-	./make_plain.pl < $< > $@
+	./../utils/make_plain.pl < $< > $@
 
 %.txt : %.tif $(LANGUAGE_FILES)
 	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
