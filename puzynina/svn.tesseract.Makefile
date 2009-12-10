@@ -7,11 +7,12 @@ IMAGE_FILES = 154.tif\
 	      25-1.tif\
 	      25-2.tif#\
 
-TESSDATA_PREFIX = /home/marcel/local/share/
+TESSDATA_PREFIX = $(HOME)/local/share/
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 HTML_FILES = $(patsubst %.tif,%.html,$(IMAGE_FILES))
+DIFF_FILES = $(patsubst %.tif,%.diff,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
@@ -56,43 +57,49 @@ unicharset: $(BOX_FILES)
 	unicharset_extractor $^
 
 %.tr : %.tif %.box
-	tesseract $< $(patsubst %.tr,%,$@) nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
-	wc -l $(patsubst %.tr,%.txt,$@)
-	rm $(patsubst %.tr,%.txt,$@)
+	tesseract $< $* nobatch box.train.stderr 2>$*.log
+	wc -l $*.txt
+	rm $*.txt
 
 .PHONY: clean
 
 clean:
-	rm -f $(TRAINED_DATA) $(NAME).* *.plain *.log *.txt *.tr *.html Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset mfunicharset
+	rm -f $(TRAINED_DATA) $(NAME).* *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset mfunicharset
 
 .PHONY: test
 
 test:  $(TESTS)
 
-.PHONY: $(TESTS)
-
 $(TESTS) : test_% : %.box.plain %.txt.plain
-	@echo TEST $@
+	@echo TEST $*.tif
 	@echo -n "Liczba bledow: "
-	@diff -y --suppress-common-lines -W 30 $^ > $@.error | true
-	@wc -l $@.error | cut -f1 -d" "
-	@echo Błędy:
-	@cat $@.error
-	@rm -f $@.error
+	@diff -y --suppress-common-lines -W 30 $^ | wc -l
 	@echo
 
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
 
 %.txt : %.tif $(TRAINED_DATA)
-	tesseract $< $(patsubst %.txt,%,$@) -l $(NAME) batch.nochop makebox
+	tesseract $< $* -l $(NAME) batch.nochop makebox
+
+wyniki:
+	mkdir -p $@
 
 .PHONY: hocr
 
-hocr: $(HTML_FILES)
+hocr: $(HTML_FILES) wyniki
+	mv $^
 
 $(HTML_FILES) : %.html : %.tif $(TRAINED_DATA)
-	tesseract $< $(patsubst %.html,%,$@) -l $(NAME) nobatch hocr
+	tesseract $< $* -l $(NAME) nobatch hocr
+
+.PHONY: diff 
+
+diff: $(DIFF_FILES) wyniki
+	mv $^
+
+$(DIFF_FILES): %.diff : %.box.plain %.txt.plain
+	@diff -y -W 30 $^ > $@ | true
 
 
 

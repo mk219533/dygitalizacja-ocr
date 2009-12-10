@@ -1,5 +1,5 @@
 LANGUAGE_NAME = puzynina
-LANGUAGE_DIR = /home/marcel/local/share/tessdata
+LANGUAGE_DIR = $(HOME)/local/share/tessdata
 
 IMAGE_FILES = 154.tif\
 	      155.tif\
@@ -52,31 +52,38 @@ unicharset: $(BOX_FILES)
 	unicharset_extractor $^
 
 %.tr : %.tif %.box
-	tesseract $< junk nobatch box.train.stderr 2>$(patsubst %.tr,%.log,$@)
+	tesseract $< junk nobatch box.train.stderr 2>$*.log
 
 .PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.error *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).*  *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
 test:  $(TESTS)
 
-$(TESTS) : test_% : %.error 
-	@echo TEST $@
+$(TESTS) : test_% : %.box.plain %.txt.plain
+	@echo TEST $*.tif
 	@echo -n "Liczba bledow: "
-	@wc -l $< | cut -f1 -d" "
+	@diff -y --suppress-common-lines -W 30 $^ | wc -l
 	@echo
-
-%.error : %.box.plain %.txt.plain
-	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
-#	@diff -y -W 30 $^ > $@ | true
 
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
 
-%.txt : %.tif $(LANGUAGE_FILES)
-	tesseract $< $(patsubst %.txt,%,$@) -l $(LANGUAGE_NAME) batch.nochop makebox
+%.txt : %.tif $(TRAINED_DATA)
+	tesseract $< $* -l $(NAME) batch.nochop makebox
+
+wyniki:
+	mkdir -p $@
+
+.PHONY: diff
+
+diff: $(DIFF_FILES) wyniki
+	mv $^
+
+$(DIFF_FILES): %.diff : %.box.plain %.txt.plain
+	@diff -y -W 30 $^ > $@ | true
 
 
