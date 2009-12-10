@@ -4,9 +4,7 @@ LANGUAGE_DIR = $(HOME)/local/share/tessdata
 IMAGE_FILES = 154.tif\
 	      155.tif\
 	      161.tif\
-	      51.tif#\
-	      25-1.tif\
-	      25-2.tif#\
+	      51.tif
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
