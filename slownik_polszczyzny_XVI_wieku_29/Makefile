@@ -8,6 +8,7 @@ IMAGE_FILES = 7.tif\
 
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
+DIFF_FILES = $(patsubst %.tif,%.diff,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
@@ -70,8 +71,8 @@ $(TESTS) : test_% : %.box.plain %.txt.plain
 %.plain : %
 	./../utils/make_plain.pl < $< > $@
 
-%.txt : %.tif $(TRAINED_DATA)
-	tesseract $< $* -l $(NAME) batch.nochop makebox
+%.txt : %.tif $(LANGUAGE_FILES)
+	tesseract $< $* -l $(LANGUAGE_NAME) batch.nochop makebox
 
 tesseract-results:
 	mkdir -p $@
