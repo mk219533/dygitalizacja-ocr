@@ -88,7 +88,7 @@ $(DIFF_FILES): %.diff : %.box.plain %.txt.plain
 
 .PHONY: errors
 
-errors: $(ERORR_FILES) tesseract-results
+errors: $(ERROR_FILES) tesseract-results
 	        mv $^
 
 $(ERROR_FILES): %.error : %.box.plain %.txt.plain
