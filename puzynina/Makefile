@@ -11,6 +11,7 @@ IMAGE_FILES = 154.tif\
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 DIFF_FILES = $(patsubst %.tif,%.diff,$(IMAGE_FILES))
+ERROR_FILES = $(patsubst %.tif,%.error,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
@@ -86,5 +87,13 @@ diff: $(DIFF_FILES) tesseract-results
 
 $(DIFF_FILES): %.diff : %.box.plain %.txt.plain
 	@diff -y -W 30 $^ > $@ | true
+
+.PHONY: errors
+
+errors: $(ERORR_FILES) tesseract-results
+	mv $^
+
+$(ERROR_FILES): %.error : %.box.plain %.txt.plain
+	@diff -y --suppress-common-lines -W 30 $^ > $@ | true
 
 
