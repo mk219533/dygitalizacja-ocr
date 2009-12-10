@@ -10,6 +10,7 @@ TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 DIFF_FILES = $(patsubst %.tif,%.diff,$(IMAGE_FILES))
 ERROR_FILES = $(patsubst %.tif,%.error,$(IMAGE_FILES))
+GOCR_FILES = $(patsubst %.tif,%.gocr,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
@@ -94,3 +95,13 @@ errors: $(ERROR_FILES) tesseract-results
 $(ERROR_FILES): %.error : %.box.plain %.txt.plain
 	        @diff -y --suppress-common-lines -W 30 $^ > $@ | true
 
+gocr-results:
+	mkdir -p $@
+
+.PHONY: gocr
+
+gocr: $(GOCR_FILES) gocr-results
+	mv $^
+
+$(GOCR_FILES): %.gocr : %.tif
+	tifftopnm $*.tif | gocr -o $@
