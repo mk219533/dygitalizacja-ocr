@@ -91,7 +91,7 @@ hocr: $(HTML_FILES) tesseract-results
 	mv $^
 
 $(HTML_FILES) : %.html : %.tif $(TRAINED_DATA)
-	tesseract $< $* -l $(NAME) nobatch hocr
+	tesseract $< $* -l $(NAME) batch.nochop hocr
 
 .PHONY: diff 
 
