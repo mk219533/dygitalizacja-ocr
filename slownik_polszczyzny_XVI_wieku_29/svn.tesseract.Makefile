@@ -80,12 +80,12 @@ $(TESTS) : test_% : %.box.plain %.txt.plain
 %.txt : %.tif $(TRAINED_DATA)
 	tesseract $< $* -l $(NAME) batch.nochop makebox
 
-wyniki:
+tesseract-results:
 	mkdir -p $@
 
 .PHONY: hocr
 
-hocr: $(HTML_FILES) wyniki
+hocr: $(HTML_FILES) tesseract-results
 	mv $^ 
 
 $(HTML_FILES) : %.html : %.tif $(TRAINED_DATA)
@@ -93,7 +93,7 @@ $(HTML_FILES) : %.html : %.tif $(TRAINED_DATA)
 
 .PHONY: diff 
 
-diff: $(DIFF_FILES) wyniki
+diff: $(DIFF_FILES) tesseract-results
 	mv $^
 
 $(DIFF_FILES): %.diff : %.box.plain %.txt.plain
