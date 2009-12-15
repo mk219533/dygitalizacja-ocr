@@ -6,11 +6,19 @@ IMAGE_FILES = 7.tif\
 	      9.tif\
 	      10.tif
 
+CUNEIFORM_DIR = cuneiform-results
+GOCR_DIR = gocr-results
+
+DIRS = $(GOCR_DIR)\
+       $(CUNEIFORM_DIR)
+
 TR_FILES = $(patsubst %.tif,%.tr,$(IMAGE_FILES))
 BOX_FILES = $(patsubst %.tif,%.box,$(IMAGE_FILES))
 DIFF_FILES = $(patsubst %.tif,%.diff,$(IMAGE_FILES))
 ERROR_FILES = $(patsubst %.tif,%.error,$(IMAGE_FILES))
-GOCR_FILES = $(patsubst %.tif,%.gocr,$(IMAGE_FILES))
+GOCR_FILES = $(patsubst %.tif,$(GOCR_DIR)/%.txt,$(IMAGE_FILES))
+CUNEIFORM_TXT_FILES = $(patsubst %.tif,$(CUNEIFORM_DIR)/%.txt,$(IMAGE_FILES))
+CUNEIFORM_HOCR_FILES = $(patsubst %.tif,$(CUNEIFORM_DIR)/%.html,$(IMAGE_FILES))
 
 TESTS = $(patsubst %.tif,test_%, $(IMAGE_FILES))
 
@@ -58,7 +66,7 @@ unicharset: $(BOX_FILES)
 .PHONY: clean
 
 clean:
-	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).*  *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
+	rm -rf $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.bmp  *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset $(DIRS)
 
 .PHONY: test
 
@@ -95,13 +103,25 @@ errors: $(ERROR_FILES) tesseract-results
 $(ERROR_FILES): %.error : %.box.plain %.txt.plain
 	        @diff -y --suppress-common-lines -W 30 $^ > $@ | true
 
-gocr-results:
+$(DIRS): % :
 	mkdir -p $@
 
 .PHONY: gocr
 
-gocr: $(GOCR_FILES) gocr-results
-	mv $^
+gocr: $(GOCR_DIR) $(GOCR_FILES)
 
-$(GOCR_FILES): %.gocr : %.tif
-	tifftopnm $*.tif | gocr -o $@
+$(GOCR_FILES): $(GOCR_DIR)/%.txt : %.tif
+	tifftopnm $< | gocr -o $@
+
+.PHONY: cuneiform
+
+cuneiform: $(CUNEIFORM_DIR) $(CUNEIFORM_TXT_FILES) $(CUNEIFORM_HOCR_FILES)
+
+$(CUNEIFORM_TXT_FILES): $(CUNEIFORM_DIR)/%.txt : %.bmp
+	cuneiform -l pol -o $@ $<
+
+$(CUNEIFORM_HOCR_FILES): $(CUNEIFORM_DIR)/%.html : %.bmp
+	cuneiform -f hocr -l pol -o $@ $<
+
+%.bmp: %.tif
+	convert $< $@
