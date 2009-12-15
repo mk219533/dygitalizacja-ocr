@@ -66,7 +66,7 @@ unicharset: $(BOX_FILES)
 .PHONY: clean
 
 clean:
-	rm -rf $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.bmp  *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset $(DIRS)
+	rm -f $(LANGUAGE_DIR)/$(LANGUAGE_NAME).* *.bmp  *.plain *.log *.txt *.tr Microfeat tesseract.log freq-dawg word-dawg inttemp normproto pffmtable unicharset
 
 .PHONY: test
 
